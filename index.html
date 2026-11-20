@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI & Tech Skill-Tree Lab v0.4</title>
+  <title>AI & Tech Skill-Tree Lab v0.5</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -35,7 +35,7 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 text-xs font-semibold mb-2 border border-sky-500/20">
-          🚀 AI Explorer Lab • Version 0.4 (Globale Suche & Eigenständige Know-how DB)
+          🚀 AI Explorer Lab • Version 0.5 (Quest-Editor, Sichere Pop-ups & JSON-Backup)
         </div>
         <h1 class="text-2xl md:text-3xl font-bold text-white">Mein KI & Tech Skill-Tree</h1>
         <p class="text-slate-400 text-sm mt-1">Projekte im Kanban steuern, XP sammeln und jederzeit unabhängige Notizen in der Know-how-Datenbank nachschlagen.</p>
@@ -74,8 +74,8 @@
     </div>
   </div>
 
-  <!-- POP-UP MODAL 2: Freie Know-how Notiz anlegen / bearbeiten -->
-  <div id="note-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onclick="if(event.target===this) closeNoteModal()">
+  <!-- POP-UP MODAL 2: Freie Know-how Notiz anlegen / bearbeiten (Kein Schließen beim Danebenklicken!) -->
+  <div id="note-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl">
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
         <div>
@@ -107,8 +107,68 @@
       </div>
 
       <div class="flex justify-end gap-2">
-        <button onclick="closeNoteModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">Abbrechen</button>
+        <button onclick="cancelNoteModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">Verwerfen</button>
         <button onclick="saveNoteModal()" class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs">💾 Notiz speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL 3: Bestehende Quest bearbeiten (Kein Schließen beim Danebenklicken!) -->
+  <div id="quest-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-base font-bold text-white">✏️ Quest bearbeiten</h2>
+          <p class="text-xs text-slate-400">Passe Titel, Bereich, Größe, Beschreibung oder die Checklisten-Schritte an.</p>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-xs bg-sky-500/10 text-sky-400 border border-sky-500/20 font-medium">Quest-Editor</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Titel der Aufgabe</label>
+          <input id="edit-quest-title" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Bereich (Kategorie)</label>
+          <select id="edit-quest-category" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400"></select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Quest-Größe & XP-Wert</label>
+          <select id="edit-quest-xp" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+            <option value="50">⚡ Quick-Win (50 XP • ~20 Min)</option>
+            <option value="150">🧪 Experiment (150 XP • 1-2 Std)</option>
+            <option value="350">🛠️ Projekt (350 XP • Mehrere Tage)</option>
+            <option value="750">🏆 Meilenstein (750 XP • Großes Ziel)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Status</label>
+          <select id="edit-quest-status" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+            <option value="idea">💡 Ideen-Speicher</option>
+            <option value="planned">📋 Geplant</option>
+            <option value="active">🧪 In Arbeit</option>
+            <option value="done">✅ Gelernt & Fertig</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="block text-[11px] text-slate-400 mb-1">Kurzbeschreibung</label>
+        <textarea id="edit-quest-desc" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-400"></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-[11px] text-slate-400 mb-1">Checklisten-Schritte (1 Schritt pro Zeile • <code class="text-emerald-400">[x]</code> davor = bereits erledigt)</label>
+        <textarea id="edit-quest-steps" rows="5" placeholder="[x] Erster erledigter Schritt&#10;[ ] Zweiter offener Schritt" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-100 font-mono leading-relaxed focus:outline-none focus:border-sky-400"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button onclick="closeQuestModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">Abbrechen</button>
+        <button onclick="saveQuestModal()" class="px-4 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-xs">💾 Änderungen speichern</button>
       </div>
     </div>
   </div>
@@ -129,8 +189,15 @@
         </button>
       </div>
 
-      <!-- Rechts: Aktions-Buttons -->
+      <!-- Rechts: Aktions-Buttons & JSON-Backup -->
       <div class="flex flex-wrap items-center gap-2">
+        <button onclick="exportBackupJson()" title="Quests, Kategorien & Notizen als JSON-Datei sichern" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/20 transition">
+          📥 Backup (.json)
+        </button>
+        <button onclick="document.getElementById('import-json-input').click()" title="Gesicherte JSON-Datei wieder einspielen" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/20 transition">
+          📤 Laden
+        </button>
+        <input id="import-json-input" type="file" accept=".json,application/json" class="hidden" onchange="importBackupJson(event)">
         <button onclick="toggleCategoryModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/20 transition">
           + Bereich
         </button>
@@ -270,16 +337,16 @@
     const defaultQuests = [
       {
         id: 1,
-        title: "Vibe Coding: Mein AI-Lab Dashboard v0.4",
+        title: "Vibe Coding: Mein AI-Lab Dashboard v0.5",
         category: "🎨 Vibe Coding & Apps",
-        status: "active",
+        status: "done",
         xp: 150,
         tier: "🧪 Experiment",
-        description: "Unser eigenes Dashboard mit Drag & Drop Kanban, Bereichsfarben, globaler Suche und Know-how-Datenbank.",
+        description: "Unser eigenes Dashboard mit Drag & Drop Kanban, Bereichsfarben, globaler Suche, Quest-Editor, Know-how-Datenbank und JSON-Backup.",
         steps: [
           { text: "Ersten Prototyp in Z:\\ai-lab anlegen", done: true },
           { text: "Kanban-Sicht, Drag & Drop & Farbcodes einbauen", done: true },
-          { text: "Globale Suche & freie Know-how-Notizen (v0.4) testen", done: false }
+          { text: "Globale Suche, Quest-Editor & JSON-Backup (v0.5) fertigstellen", done: true }
         ]
       },
       {
@@ -300,14 +367,14 @@
         id: 3,
         title: "Terminal, Git & GitHub Führerschein",
         category: "💻 Terminal, Git & Linux",
-        status: "idea",
+        status: "done",
         xp: 150,
         tier: "🧪 Experiment",
         description: "Keine Angst vor der Kommandozeile: Projekte lokal versionieren und sicher auf GitHub speichern.",
         steps: [
-          { text: "Grundbefehle (cd, dir/ls, mkdir) ausprobieren", done: false },
-          { text: "Git-Repository in Z:\\ai-lab initialisieren (git init)", done: false },
-          { text: "Ersten Speicherpunkt (git commit) setzen", done: false }
+          { text: "Grundbefehle (cd, Z:, git --version) ausprobieren", done: true },
+          { text: "Git-Repository in Z:\\ai-lab initialisieren (git init & safe.directory)", done: true },
+          { text: "Ersten Speicherpunkt setzen (git commit) & auf GitHub pushen (git push)", done: true }
         ]
       },
       {
@@ -400,10 +467,10 @@
       },
       {
         id: 103,
-        title: "Die ersten 4 Git-Befehle für unser Projekt-Backup",
+        title: "Git & GitHub Grundbefehle (Mein Projekt-Backup Workflow)",
         category: "💻 Terminal, Git & Linux",
-        tags: ["git", "terminal", "befehle", "backup"],
-        content: "git init          -> Macht aus dem aktuellen Ordner ein Git-Projekt\ngit status        -> Zeigt, welche Dateien geändert wurden\ngit add .         -> Merkt alle Änderungen für den Speicherpunkt vor\ngit commit -m \"…\" -> Speichert den aktuellen Stand fest in der Zeitmaschine",
+        tags: ["git", "github", "terminal", "befehle", "backup"],
+        content: "1. EINMALIG PRO PROJEKT-ORDNER:\ngit init          -> Macht aus dem aktuellen Ordner ein Git-Projekt\ngit branch -M main -> Nennt den Haupt-Zeitstrahl passend zu GitHub 'main'\ngit remote add origin https://github.com/yvesrothermann/ai-lab.git -> Ziel-Tresor auf GitHub festlegen\ngit push -u origin main -> Erster Upload + Verbindung dauerhaft merken (-u)\n\n2. TÄGLICHER 3ER-WORKFLOW FÜR UPDATES:\ngit status        -> Radar: Zeigt, welche Dateien geändert wurden\ngit add .         -> Packt alle Änderungen in den Umzugskarton (Staging)\ngit commit -m \"…\" -> Klebt den Karton zu & speichert ihn in der Zeitmaschine\ngit push          -> Lädt den neuen Speicherpunkt hoch auf GitHub (Dropbox für Software)",
         createdAt: "2026-11-20"
       }
     ];
@@ -413,6 +480,8 @@
     let globalSearchQuery = '';
     let wikiSortBy = 'category'; // 'category' | 'newest' | 'title'
     let editingNoteId = null;
+    let noteInitialSnapshot = '';
+    let editingQuestId = null;
     let draggedQuestId = null;
 
     let categories = JSON.parse(localStorage.getItem('ailab_categories_v04')) || defaultCategories;
@@ -641,7 +710,27 @@
         document.getElementById('note-inp-content').value = '';
       }
       document.getElementById('note-modal').classList.remove('hidden');
+      noteInitialSnapshot = getNoteModalSnapshot();
       setTimeout(() => document.getElementById('note-inp-title').focus(), 50);
+    }
+
+    function getNoteModalSnapshot() {
+      return [
+        document.getElementById('note-inp-title').value,
+        document.getElementById('note-inp-category').value,
+        document.getElementById('note-inp-tags').value,
+        document.getElementById('note-inp-content').value
+      ].join('||');
+    }
+
+    function cancelNoteModal() {
+      const currentSnapshot = getNoteModalSnapshot();
+      if (currentSnapshot !== noteInitialSnapshot) {
+        if (!confirm("Du hast ungespeicherte Änderungen in deiner Notiz. Möchtest du sie wirklich verwerfen?")) {
+          return;
+        }
+      }
+      closeNoteModal();
     }
 
     function closeNoteModal() {
@@ -688,6 +777,150 @@
       if (!confirm(`Möchtest du die Know-how Notiz "${n.title}" wirklich löschen?`)) return;
       notes = notes.filter(x => x.id !== noteId);
       save();
+    }
+
+    // Pop-up 3: Bestehende Quest bearbeiten
+    function openQuestModal(questId) {
+      const q = quests.find(x => x.id === questId);
+      if (!q) return;
+      editingQuestId = questId;
+
+      const catSelect = document.getElementById('edit-quest-category');
+      catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      document.getElementById('edit-quest-title').value = q.title;
+      catSelect.value = categories.includes(q.category) ? q.category : categories[0];
+      document.getElementById('edit-quest-xp').value = String(q.xp || 150);
+      document.getElementById('edit-quest-status').value = q.status || 'idea';
+      document.getElementById('edit-quest-desc').value = q.description || '';
+
+      const stepsLines = (q.steps || []).map(s => `${s.done ? '[x]' : '[ ]'} ${s.text}`).join('\n');
+      document.getElementById('edit-quest-steps').value = stepsLines;
+
+      document.getElementById('quest-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('edit-quest-title').focus(), 50);
+    }
+
+    function closeQuestModal() {
+      editingQuestId = null;
+      document.getElementById('quest-modal').classList.add('hidden');
+    }
+
+    function saveQuestModal() {
+      if (!editingQuestId) return;
+      const title = document.getElementById('edit-quest-title').value.trim();
+      if (!title) {
+        alert("Bitte gib der Quest einen Titel.");
+        return;
+      }
+      const category = document.getElementById('edit-quest-category').value;
+      const xp = parseInt(document.getElementById('edit-quest-xp').value, 10) || 150;
+      const status = document.getElementById('edit-quest-status').value;
+      const description = document.getElementById('edit-quest-desc').value.trim();
+      const rawSteps = document.getElementById('edit-quest-steps').value;
+
+      const tierMap = { 50: "⚡ Quick-Win", 150: "🧪 Experiment", 350: "🛠️ Projekt", 750: "🏆 Meilenstein" };
+      const parsedSteps = rawSteps
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const isDone = /^\[x\]/i.test(line);
+          const cleanText = line.replace(/^\[[ xX]?\]\s*/, '').replace(/^[-*]\s*/, '').trim();
+          return { text: cleanText || line, done: status === 'done' ? true : isDone };
+        });
+
+      quests = quests.map(q => {
+        if (q.id !== editingQuestId) return q;
+        return {
+          ...q,
+          title,
+          category,
+          xp,
+          tier: tierMap[xp] || q.tier || "🧪 Experiment",
+          status,
+          description,
+          steps: parsedSteps
+        };
+      });
+
+      closeQuestModal();
+      save();
+    }
+
+    // JSON Backup Export & Import (mit modernem File System Access Dialog für direkten Speicherort Z:\ai-lab)
+    let savedBackupFileHandle = null;
+
+    async function exportBackupJson() {
+      const backupPayload = {
+        version: "0.5",
+        exportedAt: new Date().toISOString(),
+        categories,
+        quests,
+        notes
+      };
+      const jsonStr = JSON.stringify(backupPayload, null, 2);
+
+      // Moderne Browser (Chrome / Edge): Direktes Speichern am Wunschort (z.B. Z:\ai-lab\ai-lab-backup.json)
+      if (window.showSaveFilePicker) {
+        try {
+          if (!savedBackupFileHandle) {
+            savedBackupFileHandle = await window.showSaveFilePicker({
+              suggestedName: "ai-lab-backup.json",
+              types: [{
+                description: "AI-Lab JSON Backup",
+                accept: { "application/json": [".json"] }
+              }]
+            });
+          }
+          const writable = await savedBackupFileHandle.createWritable();
+          await writable.write(jsonStr);
+          await writable.close();
+          alert("✅ Backup direkt in '" + savedBackupFileHandle.name + "' gespeichert!");
+          return;
+        } catch (err) {
+          if (err.name === 'AbortError') return; // Nutzer hat den Dialog abgebrochen
+          savedBackupFileHandle = null; // Falls Berechtigung abgelaufen, beim nächsten Mal neu fragen
+        }
+      }
+
+      // Fallback für Browser ohne showSaveFilePicker
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "ai-lab-backup.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackupJson(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data || !Array.isArray(data.quests) || !Array.isArray(data.notes)) {
+            alert("Ungültige Backup-Datei: Es wurden keine Quests oder Notizen gefunden.");
+            return;
+          }
+          if (Array.isArray(data.categories) && data.categories.length > 0) {
+            categories = data.categories;
+          }
+          quests = data.quests;
+          notes = data.notes;
+          save();
+          alert(`✅ Backup erfolgreich geladen! (${quests.length} Quests, ${notes.length} Know-how-Notizen)`);
+        } catch (err) {
+          alert("Fehler beim Lesen der JSON-Datei: " + err.message);
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
     }
 
     function toggleNewModal() {
@@ -750,12 +983,27 @@
       render();
     }
 
+    // Klick auf Kachel öffnet Editor (im Karten-Grid & in der Know-how-Datenbank), ignoriert aber Klicks auf Buttons/Checkboxen
+    function handleQuestCardClick(event, questId) {
+      if (event.target.closest('button, input, label, a, select, textarea')) return;
+      if (currentView === 'grid') {
+        openQuestModal(questId);
+      }
+    }
+
+    function handleNoteCardClick(event, noteId) {
+      if (event.target.closest('button, input, label, a, select, textarea')) return;
+      if (window.getSelection && window.getSelection().toString().length > 0) return; // Falls Nutzer Code-Text markiert/kopiert
+      openNoteModal(noteId);
+    }
+
     // Zeichnet eine einzelne Quest-Karte
     function renderQuestCard(q) {
       const { progressPct, earnedXp } = calculateQuestMetrics(q);
       const theme = getCategoryTheme(q.category);
       const safeCat = q.category.replace(/'/g, "\\'");
       const safeTitle = q.title.replace(/'/g, "\\'");
+      const isGridClickable = currentView === 'grid';
 
       const stepsHtml = (q.steps || []).map((s, idx) => `
         <label class="flex items-start gap-2 text-xs cursor-pointer group py-0.5">
@@ -768,15 +1016,20 @@
         <div draggable="true"
              ondragstart="handleDragStart(event, ${q.id})"
              ondragend="handleDragEnd(event)"
-             class="card-hover cursor-grab active:cursor-grabbing p-4 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-3">
+             onclick="handleQuestCardClick(event, ${q.id})"
+             title="${isGridClickable ? 'Klicken zum Bearbeiten der Quest' : ''}"
+             class="card-hover ${isGridClickable ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'} p-4 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-3">
           <div>
-            <!-- Top Row: Bereichs-Badge, XP & Löschen-Button -->
+            <!-- Top Row: Bereichs-Badge, XP, Bearbeiten & Löschen-Button -->
             <div class="flex items-center justify-between gap-1.5 mb-2">
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium border ${theme.badge} truncate max-w-[175px]">${q.category}</span>
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium border ${theme.badge} truncate max-w-[165px]">${q.category}</span>
               <div class="flex items-center gap-1">
                 <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-semibold bg-slate-950/90 text-emerald-400 border border-slate-800 whitespace-nowrap">
                   ${earnedXp}/${q.xp} XP
                 </span>
+                <button onclick="openQuestModal(${q.id})" title="Quest bearbeiten" class="p-1 rounded hover:bg-sky-500/20 text-slate-400 hover:text-sky-400 transition text-xs">
+                  ✏️
+                </button>
                 <button onclick="deleteQuest(${q.id})" title="Quest löschen" class="p-1 rounded hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition text-xs">
                   🗑️
                 </button>
@@ -912,7 +1165,9 @@
                   const theme = getCategoryTheme(n.category);
                   const tagsHtml = (n.tags || []).map(t => `<span class="px-2 py-0.5 rounded bg-slate-950/80 border border-slate-800 text-[10px] text-sky-300 font-mono">#${t}</span>`).join('');
                   return `
-                    <div class="card-hover p-5 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-3">
+                    <div onclick="handleNoteCardClick(event, ${n.id})"
+                         title="Klicken zum Bearbeiten dieser Notiz"
+                         class="card-hover cursor-pointer p-5 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-3">
                       <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
                           <span class="px-2.5 py-0.5 rounded-md text-xs font-medium border ${theme.badge}">${n.category}</span>

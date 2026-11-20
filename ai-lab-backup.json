@@ -1,0 +1,260 @@
+{
+  "version": "0.5",
+  "exportedAt": "2026-11-20T22:55:13.038Z",
+  "categories": [
+    "🎨 Vibe Coding & Apps",
+    "🐭 Kreativ & Audio (Knuschelmäusli)",
+    "💻 Terminal, Git & Linux",
+    "🐍 Python & Scripting",
+    "🏠 Smart Home (Home Assistant)",
+    "🌐 Homepage & Web (npm)",
+    "⚙️ CAD / Engineering / 3D-Druck",
+    "💡 Business & 2. Einnahmequelle"
+  ],
+  "quests": [
+    {
+      "id": 1795212266997,
+      "title": "Knuschelmäusli Mini-Game",
+      "category": "🎨 Vibe Coding & Apps",
+      "status": "idea",
+      "xp": 150,
+      "tier": "🧪 Experiment",
+      "description": "Eigenes Experiment im AI-Lab.",
+      "steps": [
+        {
+          "text": "Game planen",
+          "done": false
+        },
+        {
+          "text": "Game bauen",
+          "done": false
+        },
+        {
+          "text": "Game testen und iterationen fahren",
+          "done": false
+        },
+        {
+          "text": "Game deployen",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Vibe Coding: Mein AI-Lab Dashboard v0.4",
+      "category": "🎨 Vibe Coding & Apps",
+      "status": "done",
+      "xp": 150,
+      "tier": "🧪 Experiment",
+      "description": "Unser eigenes Dashboard mit Drag & Drop Kanban, Bereichsfarben, globaler Suche und Know-how-Datenbank.",
+      "steps": [
+        {
+          "text": "Ersten Prototyp in Z:\\ai-lab anlegen",
+          "done": true
+        },
+        {
+          "text": "Kanban-Sicht, Drag & Drop & Farbcodes einbauen",
+          "done": true
+        },
+        {
+          "text": "Globale Suche & freie Know-how-Notizen (v0.4) testen",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Die Abenteuer des Knuschelmäusli – Pilotfolge",
+      "category": "🐭 Kreativ & Audio (Knuschelmäusli)",
+      "status": "planned",
+      "xp": 350,
+      "tier": "🛠️ Projekt",
+      "description": "Geschichten, Stimmen (TTS) und Soundeffekte mit KI gestalten und einen wiederholbaren Workflow bauen.",
+      "steps": [
+        {
+          "text": "Kurze 1-Minuten-Geschichte mit KI entwerfen",
+          "done": true
+        },
+        {
+          "text": "Erzählstimme (TTS) testen und auswählen",
+          "done": true
+        },
+        {
+          "text": "Erste fertige MP3-Testfolge exportieren",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Terminal, Git & GitHub Führerschein",
+      "category": "💻 Terminal, Git & Linux",
+      "status": "idea",
+      "xp": 150,
+      "tier": "🧪 Experiment",
+      "description": "Keine Angst vor der Kommandozeile: Projekte lokal versionieren und sicher auf GitHub speichern.",
+      "steps": [
+        {
+          "text": "Grundbefehle (cd, dir/ls, mkdir) ausprobieren",
+          "done": false
+        },
+        {
+          "text": "Git-Repository in Z:\\ai-lab initialisieren (git init)",
+          "done": false
+        },
+        {
+          "text": "Ersten Speicherpunkt (git commit) setzen",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Python verstehen: Das erste Helfer-Script",
+      "category": "🐍 Python & Scripting",
+      "status": "idea",
+      "xp": 150,
+      "tier": "🧪 Experiment",
+      "description": "Ein kurzes Python-Script Zeile für Zeile lesen lernen, das uns echte Arbeit abnimmt.",
+      "steps": [
+        {
+          "text": "Prüfen, ob Python installiert ist (python --version)",
+          "done": false
+        },
+        {
+          "text": "20-Zeilen-Script für Knuschelmäusli-Ordnerstruktur schreiben",
+          "done": false
+        },
+        {
+          "text": "Script im Terminal starten und anpassen",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Home Assistant Sprach-Upgrade (TTS / STT)",
+      "category": "🏠 Smart Home (Home Assistant)",
+      "status": "idea",
+      "xp": 350,
+      "tier": "🛠️ Projekt",
+      "description": "Natürlich klingende Sprachausgabe und smarte Spracherkennung im eigenen Smart Home einrichten.",
+      "steps": [
+        {
+          "text": "Aktuelles Home Assistant Setup & Hardware prüfen",
+          "done": false
+        },
+        {
+          "text": "TTS-Stimme (z.B. Piper / ElevenLabs / Cloud) testen",
+          "done": false
+        },
+        {
+          "text": "Erste sprechende Automation auslösen",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Eigene Homepage modernisieren",
+      "category": "🌐 Homepage & Web (npm)",
+      "status": "idea",
+      "xp": 750,
+      "tier": "🏆 Meilenstein",
+      "description": "Die fremdgehostete Webseite komplett auffrischen und moderne Web-Werkzeuge kennenlernen.",
+      "steps": [
+        {
+          "text": "Ist-Zustand & Hoster-Zugangsdaten sichten",
+          "done": false
+        },
+        {
+          "text": "Neues Wunsch-Design per Vibe Coding entwerfen",
+          "done": false
+        },
+        {
+          "text": "Modernisierte Seite beim Hoster live schalten",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "CAD / 3D-Druck & KI-Workflows",
+      "category": "⚙️ CAD / Engineering / 3D-Druck",
+      "status": "idea",
+      "xp": 150,
+      "tier": "🧪 Experiment",
+      "description": "Erforschen, wie KI und Python-Scripte (z.B. OpenSCAD / FreeCAD) beim Konstruieren helfen.",
+      "steps": [
+        {
+          "text": "Parametrisches 3D-Bauteil per Code/Prompt generieren",
+          "done": false
+        },
+        {
+          "text": "STL-Datei prüfen und für den Slicer vorbereiten",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Ideen-Radar: Zweite Einnahmequelle",
+      "category": "💡 Business & 2. Einnahmequelle",
+      "status": "idea",
+      "xp": 350,
+      "tier": "🛠️ Projekt",
+      "description": "Während wir lernen, sammeln wir echte Probleme, aus denen ein kleines digitales Produkt werden kann.",
+      "steps": [
+        {
+          "text": "3 Dinge notieren, die beim Experimentieren extrem nützlich waren",
+          "done": false
+        },
+        {
+          "text": "Mit Mentor prüfen, ob daraus ein Mikro-Tool für andere wird",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "notes": [
+    {
+      "id": 101,
+      "title": "Warum das Suchfeld den Fokus verlor (DOM Re-Render Lektion)",
+      "category": "🎨 Vibe Coding & Apps",
+      "tags": [
+        "javascript",
+        "html",
+        "bugfix",
+        "vibe-coding"
+      ],
+      "content": "Wenn ein <input>-Feld innerhalb eines Containers liegt, der bei jedem Tastendruck per innerHTML neu gezeichnet wird, verliert der Browser den Cursor-Fokus.\n\nLösung: Suchleiste außerhalb des dynamischen Containers in der festen Toolbar platzieren!",
+      "createdAt": "2026-11-20"
+    },
+    {
+      "id": 102,
+      "title": "Erzähl-Prompt Vorlage für Knuschelmäusli",
+      "category": "🐭 Kreativ & Audio (Knuschelmäusli)",
+      "tags": [
+        "prompt",
+        "storytelling",
+        "kinder",
+        "podcast"
+      ],
+      "content": "Prompt-Struktur:\n1. Rolle: Warmherziger Kinderbuch-Erzähler\n2. Hauptfigur: Das neugierige Knuschelmäusli\n3. Tonfall: Ruhig, bildhaft, kurze Sätze zum Vorlesen/Vertonen (TTS).",
+      "createdAt": "2026-11-20"
+    },
+    {
+      "id": 103,
+      "title": "Die ersten 4 Git-Befehle für unser Projekt-Backup",
+      "category": "💻 Terminal, Git & Linux",
+      "tags": [
+        "git",
+        "terminal",
+        "befehle",
+        "backup"
+      ],
+      "content": "--- EINMALIG BEIM NEUSTART EINES PROJEKTS ---\ngit init          -> Macht aus dem aktuellen Ordner ein Git-Projekt\ngit branch -M main -> Nennt den Haupt-Zeitstrahl passend zu GitHub \"main\"\ngit remote add origin https://github.com/yvesrothermann/ai-lab.git -> Ziel für den Push definieren\ngit push -u origin main -> Erster Upload + Ziel dauerhaft merken (-u)\n--- TÄGLICHER WORKFLOW FÜR UPDATES ---\ngit status        -> Radar: Zeigt, welche Dateien geändert wurden\ngit add .         -> Merkt alle Änderungen für den Speicherpunkt vor (Karton packen)\ngit commit -m \"…\" -> Speichert den aktuellen Stand fest in der Zeitmaschine (Karton zukleben)\ngit push          -> Hochladen auf GitHub (Dropbox für Software)",
+      "createdAt": "2026-11-20"
+    }
+  ]
+}

@@ -16,21 +16,27 @@ Dieses Dokument dient als Gedächtnisstütze für Antigravity in neuen Chat-Sitz
 
 ---
 
-## 🛠️ Aktueller Projektstand (`Z:\ai-lab\index.html` – Version 0.4)
-Wir haben als erstes Experiment ein eigenes **Single-File Skill-Tree & Kanban Dashboard** gebaut:
-- **Features in v0.4:**
+## 🛠️ Aktueller Projektstand (`Z:\ai-lab\index.html` – Version 0.5)
+Wir haben als erstes Experiment ein eigenes **Single-File Skill-Tree & Kanban Dashboard** gebaut und auf GitHub (`https://github.com/yvesrothermann/ai-lab.git`) veröffentlicht:
+- **Features in v0.5:**
   - 4-Spalten-Kanban-Board (`💡 Ideen`, `📋 Geplant`, `🧪 In Arbeit`, `✅ Gelernt & Fertig`) mit **HTML5 Drag & Drop**.
   - **Farbcodierte Kacheln** je nach Bereich + erweiterbares Bereichs-Pulldown.
   - **XP- & Level-Engine:** Aufgaben geben je nach Größe (50 / 150 / 350 / 750 XP) und Fortschritt (Status + abhakbare Mini-Schritte) Erfahrungspunkte.
   - **Klickbares Level-Cockpit:** Öffnet ein Pop-up mit dem **Skill-Radar** (separates Level für jeden der 8 Bereiche).
   - **Globale Live-Suche** in der festen Toolbar (funktioniert über alle Reiter hinweg ohne Fokus-Verlust).
   - **Eigenständige Know-how-Datenbank (Reiter 3):** Freie Notizen, Prompts, Befehle und Code-Snippets erfassen (+25 Wissens-XP je Notiz) und nach Kategorien sortieren.
+  - **Sichere Pop-ups & Quest-Editor (Neu in v0.5):**
+    - Jede bestehende Quest hat jetzt einen **`✏️`-Bearbeiten-Button** (Titel, Bereich, Größe/XP, Status, Beschreibung und alle Checklisten-Schritte können jederzeit editiert werden).
+    - **Kein Textverlust beim Danebenklicken:** Die Pop-ups für Know-how-Notizen und Quests schließen sich **nicht** mehr, wenn man aus Versehen auf den abgedunkelten Hintergrund klickt, sondern nur noch über `💾 Speichern` oder `Verwerfen` (mit Sicherheitsabfrage bei ungespeichertem Text!).
+  - **JSON-Backup Export & Import (Neu in v0.5):** Über `📥 Backup (.json)` und `📤 Laden` in der Toolbar lassen sich alle `localStorage`-Daten (Quests, Kategorien, Notizen) als Datei `ai-lab-backup.json` in `Z:\ai-lab` speichern und mit Git auf GitHub sichern.
 
 ---
 
-## 🎯 Nächster geplanter Schritt
-- **Quest #3 starten (`💻 Terminal, Git & GitHub`):**
-  1. Lokales Git-Repository in `Z:\ai-lab` initialisieren (`git init`).
-  2. Ersten Speicherpunkt (`git commit`) für Version 0.4 setzen.
-  3. Mit dem vorhandenen GitHub-Account verbinden und hochladen (`git push`).
-  4. Optional für v0.5: JSON-Export/Import-Button für `localStorage`-Daten ergänzen, damit auch persönliche Notizen/Quests als Datei im Git-Backup landen.
+## 🎯 Erreichte Meilensteine & Nächste Schritte
+- ✅ **Quest #1 abgeschlossen (`🎨 Vibe Coding & Apps`):** Dashboard bis Version 0.5 ausgebaut.
+- ✅ **Quest #3 abgeschlossen (`💻 Terminal, Git & GitHub`):**
+  - Lokales Git-Repository auf dem Synology NAS (`Z:\ai-lab` / `//DS918/Yves/ai-lab`) initialisiert und mit `safe.directory` autorisiert.
+  - Branch auf `main` gesetzt, GitHub-Repo verknüpft, Personal Access Token (PAT) erstellt und im Windows-Tresor (`wincred`) dauerhaft hinterlegt.
+- 🔜 **Nächste spannende Quests zur Auswahl:**
+  - **Quest #2 (`🐭 Kreativ & Audio`):** Pilotfolge *„Die Abenteuer des Knuschelmäusli“* (1-Minuten-Story, TTS-Stimme testen, MP3-Workflow).
+  - **Quest #4 (`🐍 Python & Scripting`):** Erstes 20-Zeilen-Python-Helfer-Script schreiben und verstehen.
