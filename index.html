@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI & Tech Skill-Tree Lab v0.4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .card-hover {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.5);
+    }
+    .dragging {
+      opacity: 0.45;
+      transform: scale(0.97);
+    }
+    .drop-zone-active {
+      background-color: rgba(56, 189, 248, 0.08) !important;
+      border-color: rgba(56, 189, 248, 0.6) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
+
+  <!-- HEADER: Level, XP & Klickbares Skill-Radar Cockpit -->
+  <header class="mb-6 p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 text-xs font-semibold mb-2 border border-sky-500/20">
+          🚀 AI Explorer Lab • Version 0.4 (Globale Suche & Eigenständige Know-how DB)
+        </div>
+        <h1 class="text-2xl md:text-3xl font-bold text-white">Mein KI & Tech Skill-Tree</h1>
+        <p class="text-slate-400 text-sm mt-1">Projekte im Kanban steuern, XP sammeln und jederzeit unabhängige Notizen in der Know-how-Datenbank nachschlagen.</p>
+      </div>
+
+      <!-- KLICKBARES XP & Level Cockpit (Öffnet Bereichs-Skill-Tree Pop-up) -->
+      <div onclick="toggleSkillModal()" title="Klicken für Bereichs-Level & Skill-Radar!" class="cursor-pointer group bg-slate-950 hover:bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-sky-500/50 transition min-w-[300px] lg:min-w-[380px] relative">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="font-bold text-sky-400 text-sm flex items-center gap-1.5">
+            <span id="level-badge">Level 1: Neugieriger Entdecker</span>
+          </span>
+          <span class="font-mono text-xs text-emerald-400 font-semibold" id="xp-text">0 XP</span>
+        </div>
+        <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden mb-2">
+          <div id="xp-bar" class="h-full bg-gradient-to-r from-sky-500 via-indigo-400 to-emerald-400 transition-all duration-500" style="width: 5%"></div>
+        </div>
+        <div class="flex justify-between items-center text-[11px] text-slate-400">
+          <span id="next-level-hint">Noch 250 XP bis Level 2</span>
+          <span class="text-sky-400 group-hover:underline font-medium">📊 Bereichs-Level anzeigen ↗</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- POP-UP MODAL 1: Bereichs-Skill-Radar -->
+  <div id="skill-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onclick="if(event.target===this) toggleSkillModal()">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white">📊 Dein Skill-Radar nach Bereichen</h2>
+          <p class="text-xs text-slate-400">Jeder Bereich levelt durch Quests UND durch Know-how-Notizen (+25 XP je Notiz).</p>
+        </div>
+        <button onclick="toggleSkillModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Schließen ✕</button>
+      </div>
+      <div id="skill-modal-content" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[65vh] overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL 2: Freie Know-how Notiz anlegen / bearbeiten -->
+  <div id="note-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onclick="if(event.target===this) closeNoteModal()">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+        <div>
+          <h2 id="note-modal-heading" class="text-base font-bold text-white">📚 Neue Know-how Notiz erfassen</h2>
+          <p class="text-xs text-slate-400">Speichere Befehle, Prompts, Code-Schnipsel oder Anleitungen unabhängig von Quests.</p>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">+25 Wissens-XP</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Titel der Notiz</label>
+          <input id="note-inp-title" type="text" placeholder="z.B. Git Grundbefehle Cheat-Sheet" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Bereich (Kategorie)</label>
+          <select id="note-inp-category" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400"></select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="block text-[11px] text-slate-400 mb-1">Schlagwörter / Tags (optional, mit Komma trennen)</label>
+        <input id="note-inp-tags" type="text" placeholder="z.B. git, terminal, backup, befehle" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-400">
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-[11px] text-slate-400 mb-1">Inhalt (Notiz, Prompt, Befehl oder Code)</label>
+        <textarea id="note-inp-content" rows="7" placeholder="Schreibe hier dein Know-how rein..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-100 font-mono leading-relaxed focus:outline-none focus:border-sky-400"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button onclick="closeNoteModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">Abbrechen</button>
+        <button onclick="saveNoteModal()" class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs">💾 Notiz speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR: Ansichts-Wechsel, GLOBALE SUCHE (bleibt immer im Fokus!), Bereichs-Filter & Aktionen -->
+  <div class="flex flex-col gap-3 mb-6 p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <!-- Links: View Switcher -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button onclick="setView('kanban')" id="btn-view-kanban" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 text-slate-950 transition">
+          📋 Kanban-Board
+        </button>
+        <button onclick="setView('grid')" id="btn-view-grid" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+          🗂️ Karten-Grid
+        </button>
+        <button onclick="setView('wiki')" id="btn-view-wiki" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+          📚 Know-how Datenbank <span id="wiki-count-badge" class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-950/60 text-[10px]">0</span>
+        </button>
+      </div>
+
+      <!-- Rechts: Aktions-Buttons -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="toggleCategoryModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/20 transition">
+          + Bereich
+        </button>
+        <button onclick="openNoteModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500 hover:bg-indigo-400 text-white transition">
+          + Know-how Notiz
+        </button>
+        <button onclick="toggleNewModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition">
+          + Neue Quest
+        </button>
+        <button onclick="resetData()" class="px-2.5 py-1.5 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-400" title="Auf Startwerte zurücksetzen">
+          ↺
+        </button>
+      </div>
+    </div>
+
+    <!-- Zweite Toolbar-Zeile: Globale Live-Suche (für ALLE Reiter) + Bereichs-Filter -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2.5 border-t border-slate-800/80">
+      <div class="relative flex-1">
+        <input id="global-search-input"
+               type="text"
+               oninput="handleGlobalSearch(this.value)"
+               placeholder="🔍 In allen Reitern live suchen (Titel, Beschreibung, Tags, Befehle, Notizen)..."
+               class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-3 pr-8 py-1.5 text-xs text-white focus:outline-none focus:border-sky-400">
+        <button id="clear-search-btn" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-1.5 text-xs text-slate-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-400 whitespace-nowrap">Bereich filtern:</span>
+        <select id="category-filter" onchange="setCategoryFilter(this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-400">
+          <option value="all">Alle Bereiche anzeigen</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULAR 1: Neuen Bereich hinzufügen -->
+  <div id="new-category-box" class="hidden mb-6 p-4 rounded-xl bg-slate-900 border border-sky-500/40">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="text-sm font-bold text-white">Eigenen Interessens-Bereich ergänzen</h3>
+        <p class="text-xs text-slate-400">Jeder Bereich bekommt automatisch eine eigene Kachel-Hintergrundfarbe.</p>
+      </div>
+      <div class="flex items-center gap-2 flex-1 max-w-md">
+        <input id="inp-new-cat" type="text" placeholder="z.B. 🤖 Robotik & Mikrocontroller" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-400">
+        <button onclick="addCategory()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 text-slate-950 whitespace-nowrap">Hinzufügen</button>
+        <button onclick="toggleCategoryModal()" class="px-2.5 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-400">✕</button>
+      </div>
+    </div>
+    <div id="category-tags-list" class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-800"></div>
+  </div>
+
+  <!-- FORMULAR 2: Neue Quest / Projekt anlegen -->
+  <div id="new-idea-box" class="hidden mb-6 p-5 rounded-xl bg-slate-900 border border-emerald-500/40 shadow-lg">
+    <h3 class="text-sm font-bold text-white mb-3">Neue Quest oder Projekt-Idee erfassen</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Titel der Aufgabe</label>
+        <input id="inp-title" type="text" placeholder="z.B. Halterung in CAD konstruieren" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+      </div>
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Bereich (Pulldown)</label>
+        <select id="inp-category-select" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400"></select>
+      </div>
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Quest-Größe & XP-Wert</label>
+        <select id="inp-xp" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+          <option value="50">⚡ Quick-Win (50 XP • ~20 Min)</option>
+          <option value="150" selected>🧪 Experiment (150 XP • 1-2 Std)</option>
+          <option value="350">🛠️ Projekt (350 XP • Mehrere Tage)</option>
+          <option value="750">🏆 Meilenstein (750 XP • Großes Ziel)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Start-Status</label>
+        <select id="inp-status" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+          <option value="idea">💡 Ideen-Speicher (0%)</option>
+          <option value="planned">📋 Geplant (15% XP-Startbonus)</option>
+          <option value="active">🧪 In Arbeit (40% XP-Boost)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Kurzbeschreibung</label>
+        <input id="inp-desc" type="text" placeholder="Worum geht es und was will ich dabei lernen?" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+      </div>
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Mini-Schritte (mit Komma trennen)</label>
+        <input id="inp-steps" type="text" placeholder="z.B. Tool auswählen, Ersten Test machen, Ergebnis notieren" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button onclick="toggleNewModal()" class="px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+      <button onclick="addIdea()" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950">Quest anlegen</button>
+    </div>
+  </div>
+
+  <!-- HAUPTBEREICH -->
+  <div id="board-container"></div>
+
+  <script>
+    // 1. Standard-Bereiche
+    const defaultCategories = [
+      "🎨 Vibe Coding & Apps",
+      "🐭 Kreativ & Audio (Knuschelmäusli)",
+      "💻 Terminal, Git & Linux",
+      "🐍 Python & Scripting",
+      "🏠 Smart Home (Home Assistant)",
+      "🌐 Homepage & Web (npm)",
+      "⚙️ CAD / Engineering / 3D-Druck",
+      "💡 Business & 2. Einnahmequelle"
+    ];
+
+    // 2. Farb-Paletten für die Bereiche
+    const colorPalettes = [
+      { bg: "bg-indigo-950/45", border: "border-indigo-500/35", badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30", bar: "bg-indigo-400" },
+      { bg: "bg-rose-950/40",   border: "border-rose-500/35",   badge: "bg-rose-500/20 text-rose-300 border-rose-500/30",     bar: "bg-rose-400" },
+      { bg: "bg-cyan-950/40",   border: "border-cyan-500/35",   badge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",     bar: "bg-cyan-400" },
+      { bg: "bg-amber-950/35",  border: "border-amber-500/35",  badge: "bg-amber-500/20 text-amber-300 border-amber-500/30",   bar: "bg-amber-400" },
+      { bg: "bg-emerald-950/35",border: "border-emerald-500/35",badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", bar: "bg-emerald-400" },
+      { bg: "bg-purple-950/40", border: "border-purple-500/35", badge: "bg-purple-500/20 text-purple-300 border-purple-500/30", bar: "bg-purple-400" },
+      { bg: "bg-orange-950/40", border: "border-orange-500/35", badge: "bg-orange-500/20 text-orange-300 border-orange-500/30", bar: "bg-orange-400" },
+      { bg: "bg-teal-950/40",   border: "border-teal-500/35",   badge: "bg-teal-500/20 text-teal-300 border-teal-500/30",     bar: "bg-teal-400" },
+      { bg: "bg-fuchsia-950/40",border: "border-fuchsia-500/35",badge: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30", bar: "bg-fuchsia-400" },
+      { bg: "bg-lime-950/35",   border: "border-lime-500/35",   badge: "bg-lime-500/20 text-lime-300 border-lime-500/30",     bar: "bg-lime-400" }
+    ];
+
+    function getCategoryTheme(categoryName) {
+      const idx = categories.indexOf(categoryName);
+      const safeIdx = idx >= 0 ? idx % colorPalettes.length : 0;
+      return colorPalettes[safeIdx];
+    }
+
+    // 3. Start-Quests
+    const defaultQuests = [
+      {
+        id: 1,
+        title: "Vibe Coding: Mein AI-Lab Dashboard v0.4",
+        category: "🎨 Vibe Coding & Apps",
+        status: "active",
+        xp: 150,
+        tier: "🧪 Experiment",
+        description: "Unser eigenes Dashboard mit Drag & Drop Kanban, Bereichsfarben, globaler Suche und Know-how-Datenbank.",
+        steps: [
+          { text: "Ersten Prototyp in Z:\\ai-lab anlegen", done: true },
+          { text: "Kanban-Sicht, Drag & Drop & Farbcodes einbauen", done: true },
+          { text: "Globale Suche & freie Know-how-Notizen (v0.4) testen", done: false }
+        ]
+      },
+      {
+        id: 2,
+        title: "Die Abenteuer des Knuschelmäusli – Pilotfolge",
+        category: "🐭 Kreativ & Audio (Knuschelmäusli)",
+        status: "planned",
+        xp: 350,
+        tier: "🛠️ Projekt",
+        description: "Geschichten, Stimmen (TTS) und Soundeffekte mit KI gestalten und einen wiederholbaren Workflow bauen.",
+        steps: [
+          { text: "Kurze 1-Minuten-Geschichte mit KI entwerfen", done: false },
+          { text: "Erzählstimme (TTS) testen und auswählen", done: false },
+          { text: "Erste fertige MP3-Testfolge exportieren", done: false }
+        ]
+      },
+      {
+        id: 3,
+        title: "Terminal, Git & GitHub Führerschein",
+        category: "💻 Terminal, Git & Linux",
+        status: "idea",
+        xp: 150,
+        tier: "🧪 Experiment",
+        description: "Keine Angst vor der Kommandozeile: Projekte lokal versionieren und sicher auf GitHub speichern.",
+        steps: [
+          { text: "Grundbefehle (cd, dir/ls, mkdir) ausprobieren", done: false },
+          { text: "Git-Repository in Z:\\ai-lab initialisieren (git init)", done: false },
+          { text: "Ersten Speicherpunkt (git commit) setzen", done: false }
+        ]
+      },
+      {
+        id: 4,
+        title: "Python verstehen: Das erste Helfer-Script",
+        category: "🐍 Python & Scripting",
+        status: "idea",
+        xp: 150,
+        tier: "🧪 Experiment",
+        description: "Ein kurzes Python-Script Zeile für Zeile lesen lernen, das uns echte Arbeit abnimmt.",
+        steps: [
+          { text: "Prüfen, ob Python installiert ist (python --version)", done: false },
+          { text: "20-Zeilen-Script für Knuschelmäusli-Ordnerstruktur schreiben", done: false },
+          { text: "Script im Terminal starten und anpassen", done: false }
+        ]
+      },
+      {
+        id: 5,
+        title: "Home Assistant Sprach-Upgrade (TTS / STT)",
+        category: "🏠 Smart Home (Home Assistant)",
+        status: "idea",
+        xp: 350,
+        tier: "🛠️ Projekt",
+        description: "Natürlich klingende Sprachausgabe und smarte Spracherkennung im eigenen Smart Home einrichten.",
+        steps: [
+          { text: "Aktuelles Home Assistant Setup & Hardware prüfen", done: false },
+          { text: "TTS-Stimme (z.B. Piper / ElevenLabs / Cloud) testen", done: false },
+          { text: "Erste sprechende Automation auslösen", done: false }
+        ]
+      },
+      {
+        id: 6,
+        title: "Eigene Homepage modernisieren",
+        category: "🌐 Homepage & Web (npm)",
+        status: "idea",
+        xp: 750,
+        tier: "🏆 Meilenstein",
+        description: "Die fremdgehostete Webseite komplett auffrischen und moderne Web-Werkzeuge kennenlernen.",
+        steps: [
+          { text: "Ist-Zustand & Hoster-Zugangsdaten sichten", done: false },
+          { text: "Neues Wunsch-Design per Vibe Coding entwerfen", done: false },
+          { text: "Modernisierte Seite beim Hoster live schalten", done: false }
+        ]
+      },
+      {
+        id: 7,
+        title: "CAD / 3D-Druck & KI-Workflows",
+        category: "⚙️ CAD / Engineering / 3D-Druck",
+        status: "idea",
+        xp: 150,
+        tier: "🧪 Experiment",
+        description: "Erforschen, wie KI und Python-Scripte (z.B. OpenSCAD / FreeCAD) beim Konstruieren helfen.",
+        steps: [
+          { text: "Parametrisches 3D-Bauteil per Code/Prompt generieren", done: false },
+          { text: "STL-Datei prüfen und für den Slicer vorbereiten", done: false }
+        ]
+      },
+      {
+        id: 8,
+        title: "Ideen-Radar: Zweite Einnahmequelle",
+        category: "💡 Business & 2. Einnahmequelle",
+        status: "idea",
+        xp: 350,
+        tier: "🛠️ Projekt",
+        description: "Während wir lernen, sammeln wir echte Probleme, aus denen ein kleines digitales Produkt werden kann.",
+        steps: [
+          { text: "3 Dinge notieren, die beim Experimentieren extrem nützlich waren", done: false },
+          { text: "Mit Mentor prüfen, ob daraus ein Mikro-Tool für andere wird", done: false }
+        ]
+      }
+    ];
+
+    // 4. Eigenständige Know-how Notizen (Unabhängig von Quests erfassbar & sortierbar)
+    const defaultNotes = [
+      {
+        id: 101,
+        title: "Warum das Suchfeld den Fokus verlor (DOM Re-Render Lektion)",
+        category: "🎨 Vibe Coding & Apps",
+        tags: ["javascript", "html", "bugfix", "vibe-coding"],
+        content: "Wenn ein <input>-Feld innerhalb eines Containers liegt, der bei jedem Tastendruck per innerHTML neu gezeichnet wird, verliert der Browser den Cursor-Fokus.\n\nLösung: Suchleiste außerhalb des dynamischen Containers in der festen Toolbar platzieren!",
+        createdAt: "2026-11-20"
+      },
+      {
+        id: 102,
+        title: "Erzähl-Prompt Vorlage für Knuschelmäusli",
+        category: "🐭 Kreativ & Audio (Knuschelmäusli)",
+        tags: ["prompt", "storytelling", "kinder", "podcast"],
+        content: "Prompt-Struktur:\n1. Rolle: Warmherziger Kinderbuch-Erzähler\n2. Hauptfigur: Das neugierige Knuschelmäusli\n3. Tonfall: Ruhig, bildhaft, kurze Sätze zum Vorlesen/Vertonen (TTS).",
+        createdAt: "2026-11-20"
+      },
+      {
+        id: 103,
+        title: "Die ersten 4 Git-Befehle für unser Projekt-Backup",
+        category: "💻 Terminal, Git & Linux",
+        tags: ["git", "terminal", "befehle", "backup"],
+        content: "git init          -> Macht aus dem aktuellen Ordner ein Git-Projekt\ngit status        -> Zeigt, welche Dateien geändert wurden\ngit add .         -> Merkt alle Änderungen für den Speicherpunkt vor\ngit commit -m \"…\" -> Speichert den aktuellen Stand fest in der Zeitmaschine",
+        createdAt: "2026-11-20"
+      }
+    ];
+
+    let currentView = localStorage.getItem('ailab_view_v04') || 'kanban';
+    let currentCategoryFilter = 'all';
+    let globalSearchQuery = '';
+    let wikiSortBy = 'category'; // 'category' | 'newest' | 'title'
+    let editingNoteId = null;
+    let draggedQuestId = null;
+
+    let categories = JSON.parse(localStorage.getItem('ailab_categories_v04')) || defaultCategories;
+    let quests = JSON.parse(localStorage.getItem('ailab_quests_v04')) || defaultQuests;
+    let notes = JSON.parse(localStorage.getItem('ailab_notes_v04')) || defaultNotes;
+
+    function calculateQuestMetrics(q) {
+      if (q.status === 'done') {
+        return { progressPct: 100, earnedXp: q.xp };
+      }
+      const statusBase = { idea: 0, planned: 15, active: 40, done: 100 }[q.status] || 0;
+      let stepsPct = 0;
+      if (q.steps && q.steps.length > 0) {
+        const doneCount = q.steps.filter(s => s.done).length;
+        stepsPct = Math.round((doneCount / q.steps.length) * 55);
+      }
+      const progressPct = Math.min(95, statusBase + stepsPct);
+      const earnedXp = Math.round((progressPct / 100) * q.xp);
+      return { progressPct, earnedXp };
+    }
+
+    function save() {
+      localStorage.setItem('ailab_quests_v04', JSON.stringify(quests));
+      localStorage.setItem('ailab_categories_v04', JSON.stringify(categories));
+      localStorage.setItem('ailab_notes_v04', JSON.stringify(notes));
+      localStorage.setItem('ailab_view_v04', currentView);
+      render();
+    }
+
+    // Globale Suche (in der festen Toolbar -> verliert NIE den Fokus beim Tippen!)
+    function handleGlobalSearch(val) {
+      globalSearchQuery = val;
+      const clearBtn = document.getElementById('clear-search-btn');
+      if (val.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderBoardOnly();
+    }
+
+    function clearGlobalSearch() {
+      globalSearchQuery = '';
+      const inp = document.getElementById('global-search-input');
+      inp.value = '';
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      inp.focus();
+      renderBoardOnly();
+    }
+
+    function matchesQuestSearch(q) {
+      if (!globalSearchQuery.trim()) return true;
+      const term = globalSearchQuery.toLowerCase();
+      const inTitle = q.title.toLowerCase().includes(term);
+      const inDesc = (q.description || '').toLowerCase().includes(term);
+      const inCat = q.category.toLowerCase().includes(term);
+      const inSteps = (q.steps || []).some(s => s.text.toLowerCase().includes(term));
+      return inTitle || inDesc || inCat || inSteps;
+    }
+
+    function matchesNoteSearch(n) {
+      if (!globalSearchQuery.trim()) return true;
+      const term = globalSearchQuery.toLowerCase();
+      const inTitle = n.title.toLowerCase().includes(term);
+      const inContent = (n.content || '').toLowerCase().includes(term);
+      const inCat = n.category.toLowerCase().includes(term);
+      const inTags = (n.tags || []).some(t => t.toLowerCase().includes(term));
+      return inTitle || inContent || inCat || inTags;
+    }
+
+    function setView(v) {
+      currentView = v;
+      save();
+    }
+
+    function setCategoryFilter(cat) {
+      currentCategoryFilter = cat;
+      renderBoardOnly();
+    }
+
+    function setWikiSort(sortMode) {
+      wikiSortBy = sortMode;
+      renderBoardOnly();
+    }
+
+    function setStatus(id, newStatus) {
+      quests = quests.map(q => {
+        if (q.id !== id) return q;
+        const updatedSteps = newStatus === 'done' && q.steps
+          ? q.steps.map(s => ({ ...s, done: true }))
+          : q.steps;
+        return { ...q, status: newStatus, steps: updatedSteps };
+      });
+      save();
+    }
+
+    function deleteQuest(id) {
+      const q = quests.find(x => x.id === id);
+      if (!q) return;
+      if (!confirm(`Möchtest du die Quest "${q.title}" wirklich löschen?`)) return;
+      quests = quests.filter(x => x.id !== id);
+      save();
+    }
+
+    // Drag & Drop Handler
+    function handleDragStart(event, questId) {
+      draggedQuestId = questId;
+      event.dataTransfer.setData('text/plain', questId);
+      setTimeout(() => event.target.classList.add('dragging'), 0);
+    }
+
+    function handleDragEnd(event) {
+      event.target.classList.remove('dragging');
+      document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drop-zone-active'));
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add('drop-zone-active');
+    }
+
+    function handleDragLeave(event) {
+      event.currentTarget.classList.remove('drop-zone-active');
+    }
+
+    function handleDrop(event, targetStatus) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drop-zone-active');
+      const id = draggedQuestId || parseInt(event.dataTransfer.getData('text/plain'), 10);
+      if (id) {
+        setStatus(id, targetStatus);
+        draggedQuestId = null;
+      }
+    }
+
+    function toggleStep(questId, stepIdx) {
+      quests = quests.map(q => {
+        if (q.id !== questId) return q;
+        const newSteps = q.steps.map((s, idx) => idx === stepIdx ? { ...s, done: !s.done } : s);
+        const anyDone = newSteps.some(s => s.done);
+        const allDone = newSteps.length > 0 && newSteps.every(s => s.done);
+        let newStatus = q.status;
+        if (allDone) newStatus = 'done';
+        else if (anyDone && q.status === 'idea') newStatus = 'active';
+        return { ...q, steps: newSteps, status: newStatus };
+      });
+      save();
+    }
+
+    function addStepPrompt(questId) {
+      const text = prompt("Nächster kleiner Mini-Schritt für diese Aufgabe:");
+      if (!text || !text.trim()) return;
+      quests = quests.map(q => {
+        if (q.id !== questId) return q;
+        const steps = q.steps ? [...q.steps, { text: text.trim(), done: false }] : [{ text: text.trim(), done: false }];
+        return { ...q, steps };
+      });
+      save();
+    }
+
+    // Pop-up 1: Bereichs-Skill-Radar
+    function toggleSkillModal() {
+      const modal = document.getElementById('skill-modal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        renderSkillModal();
+      }
+    }
+
+    function renderSkillModal() {
+      const container = document.getElementById('skill-modal-content');
+      container.innerHTML = categories.map(cat => {
+        const theme = getCategoryTheme(cat);
+        const catQuests = quests.filter(q => q.category === cat);
+        const catNotes = notes.filter(n => n.category === cat);
+        let earned = catNotes.length * 25;
+        catQuests.forEach(q => {
+          earned += calculateQuestMetrics(q).earnedXp;
+        });
+        const catLevel = Math.floor(earned / 150) + 1;
+        const xpInLvl = earned % 150;
+        const pct = Math.max(6, Math.round((xpInLvl / 150) * 100));
+        const doneCount = catQuests.filter(q => q.status === 'done').length;
+
+        return `
+          <div class="p-4 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-white truncate">${cat}</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${theme.badge}">Lvl ${catLevel}</span>
+            </div>
+            <div class="w-full h-2 bg-slate-950/80 rounded-full overflow-hidden my-1">
+              <div class="h-full ${theme.bar} transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-300 font-mono">
+              <span>${earned} XP</span>
+              <span>${doneCount}/${catQuests.length} Quests • ${catNotes.length} Notizen</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Pop-up 2: Know-how Notiz anlegen / bearbeiten (oder aus einer Quest heraus erstellen)
+    function openNoteModal(noteId = null, prefillCategory = null, prefillTitle = '') {
+      editingNoteId = noteId;
+      const catSelect = document.getElementById('note-inp-category');
+      catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      if (noteId) {
+        const existing = notes.find(n => n.id === noteId);
+        if (!existing) return;
+        document.getElementById('note-modal-heading').textContent = '✏️ Know-how Notiz bearbeiten';
+        document.getElementById('note-inp-title').value = existing.title;
+        catSelect.value = existing.category;
+        document.getElementById('note-inp-tags').value = (existing.tags || []).join(', ');
+        document.getElementById('note-inp-content').value = existing.content;
+      } else {
+        document.getElementById('note-modal-heading').textContent = '📚 Neue Know-how Notiz erfassen';
+        document.getElementById('note-inp-title').value = prefillTitle;
+        if (prefillCategory && categories.includes(prefillCategory)) {
+          catSelect.value = prefillCategory;
+        } else if (currentCategoryFilter !== 'all') {
+          catSelect.value = currentCategoryFilter;
+        }
+        document.getElementById('note-inp-tags').value = '';
+        document.getElementById('note-inp-content').value = '';
+      }
+      document.getElementById('note-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('note-inp-title').focus(), 50);
+    }
+
+    function closeNoteModal() {
+      editingNoteId = null;
+      document.getElementById('note-modal').classList.add('hidden');
+    }
+
+    function saveNoteModal() {
+      const title = document.getElementById('note-inp-title').value.trim();
+      const category = document.getElementById('note-inp-category').value;
+      const rawTags = document.getElementById('note-inp-tags').value.trim();
+      const content = document.getElementById('note-inp-content').value.trim();
+
+      if (!title || !content) {
+        alert("Bitte gib deiner Notiz einen Titel und einen Inhalt.");
+        return;
+      }
+
+      const tags = rawTags
+        ? rawTags.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean)
+        : [];
+
+      if (editingNoteId) {
+        notes = notes.map(n => n.id === editingNoteId ? { ...n, title, category, tags, content } : n);
+      } else {
+        const today = new Date().toISOString().slice(0, 10);
+        notes.unshift({
+          id: Date.now(),
+          title,
+          category,
+          tags,
+          content,
+          createdAt: today
+        });
+      }
+
+      closeNoteModal();
+      save();
+    }
+
+    function deleteNote(noteId) {
+      const n = notes.find(x => x.id === noteId);
+      if (!n) return;
+      if (!confirm(`Möchtest du die Know-how Notiz "${n.title}" wirklich löschen?`)) return;
+      notes = notes.filter(x => x.id !== noteId);
+      save();
+    }
+
+    function toggleNewModal() {
+      document.getElementById('new-idea-box').classList.toggle('hidden');
+    }
+
+    function toggleCategoryModal() {
+      document.getElementById('new-category-box').classList.toggle('hidden');
+    }
+
+    function addCategory() {
+      const inp = document.getElementById('inp-new-cat');
+      const val = inp.value.trim();
+      if (!val || categories.includes(val)) return;
+      categories.push(val);
+      inp.value = '';
+      save();
+    }
+
+    function addIdea() {
+      const title = document.getElementById('inp-title').value.trim();
+      if (!title) return;
+      const category = document.getElementById('inp-category-select').value;
+      const xp = parseInt(document.getElementById('inp-xp').value, 10) || 150;
+      const status = document.getElementById('inp-status').value;
+      const description = document.getElementById('inp-desc').value.trim() || 'Eigenes Experiment im AI-Lab.';
+      const rawSteps = document.getElementById('inp-steps').value.trim();
+
+      const tierMap = { 50: "⚡ Quick-Win", 150: "🧪 Experiment", 350: "🛠️ Projekt", 750: "🏆 Meilenstein" };
+      const steps = rawSteps
+        ? rawSteps.split(',').map(s => s.trim()).filter(Boolean).map(text => ({ text, done: false }))
+        : [{ text: "Ersten kleinen Testschritt definieren", done: false }];
+
+      quests.unshift({
+        id: Date.now(),
+        title,
+        category,
+        status,
+        xp,
+        tier: tierMap[xp] || "🧪 Experiment",
+        description,
+        steps
+      });
+
+      document.getElementById('inp-title').value = '';
+      document.getElementById('inp-desc').value = '';
+      document.getElementById('inp-steps').value = '';
+      toggleNewModal();
+      save();
+    }
+
+    function resetData() {
+      if (!confirm("Möchtest du das Board wirklich auf die Start-Quests und Start-Notizen von v0.4 zurücksetzen?")) return;
+      localStorage.removeItem('ailab_quests_v04');
+      localStorage.removeItem('ailab_categories_v04');
+      localStorage.removeItem('ailab_notes_v04');
+      quests = JSON.parse(JSON.stringify(defaultQuests));
+      categories = [...defaultCategories];
+      notes = JSON.parse(JSON.stringify(defaultNotes));
+      render();
+    }
+
+    // Zeichnet eine einzelne Quest-Karte
+    function renderQuestCard(q) {
+      const { progressPct, earnedXp } = calculateQuestMetrics(q);
+      const theme = getCategoryTheme(q.category);
+      const safeCat = q.category.replace(/'/g, "\\'");
+      const safeTitle = q.title.replace(/'/g, "\\'");
+
+      const stepsHtml = (q.steps || []).map((s, idx) => `
+        <label class="flex items-start gap-2 text-xs cursor-pointer group py-0.5">
+          <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleStep(${q.id}, ${idx})" class="mt-0.5 rounded bg-slate-900 border-slate-700 text-sky-500 focus:ring-0 cursor-pointer">
+          <span class="${s.done ? 'line-through text-slate-500' : 'text-slate-200 group-hover:text-white'}">${s.text}</span>
+        </label>
+      `).join('');
+
+      return `
+        <div draggable="true"
+             ondragstart="handleDragStart(event, ${q.id})"
+             ondragend="handleDragEnd(event)"
+             class="card-hover cursor-grab active:cursor-grabbing p-4 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-3">
+          <div>
+            <!-- Top Row: Bereichs-Badge, XP & Löschen-Button -->
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium border ${theme.badge} truncate max-w-[175px]">${q.category}</span>
+              <div class="flex items-center gap-1">
+                <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-semibold bg-slate-950/90 text-emerald-400 border border-slate-800 whitespace-nowrap">
+                  ${earnedXp}/${q.xp} XP
+                </span>
+                <button onclick="deleteQuest(${q.id})" title="Quest löschen" class="p-1 rounded hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition text-xs">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <!-- Titel & Beschreibung -->
+            <h3 class="text-sm font-bold text-white mb-1">${q.title}</h3>
+            <p class="text-xs text-slate-300/80 leading-relaxed mb-3">${q.description}</p>
+
+            <!-- Fortschrittsbalken -->
+            <div class="mb-3">
+              <div class="flex justify-between text-[10px] text-slate-300/75 mb-1">
+                <span>${q.tier || '🧪 Experiment'}</span>
+                <span class="font-mono">${progressPct}%</span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-950/90 rounded-full overflow-hidden">
+                <div class="h-full ${q.status === 'done' ? 'bg-emerald-400' : theme.bar} transition-all duration-300" style="width: ${progressPct}%"></div>
+              </div>
+            </div>
+
+            <!-- Abhakbare Mini-Schritte -->
+            <div class="p-2.5 rounded-lg bg-slate-950/75 border border-slate-800/80 space-y-1 mb-2">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Checkliste</span>
+                <button onclick="addStepPrompt(${q.id})" class="text-[10px] text-sky-400 hover:underline">+ Schritt</button>
+              </div>
+              ${stepsHtml}
+            </div>
+
+            <!-- Direkt neue Know-how Notiz zu dieser Quest anlegen -->
+            <button onclick="openNoteModal(null, '${safeCat}', 'Erkenntnis: ${safeTitle}')" class="w-full py-1.5 px-2.5 rounded-lg text-xs flex items-center justify-between border bg-slate-950/60 border-slate-800 text-slate-300 hover:border-sky-500/40 hover:text-white transition">
+              <span class="truncate">📓 Know-how dazu notieren</span>
+              <span class="text-[10px] font-mono text-emerald-400">+25 XP</span>
+            </button>
+          </div>
+
+          <!-- Status-Buttons unten -->
+          <div class="grid grid-cols-4 gap-1 pt-2 border-t border-slate-800/80 text-[11px]">
+            <button onclick="setStatus(${q.id}, 'idea')" class="py-1 rounded ${q.status === 'idea' ? 'bg-slate-700 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800/70'}">💡 Idee</button>
+            <button onclick="setStatus(${q.id}, 'planned')" class="py-1 rounded ${q.status === 'planned' ? 'bg-sky-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800/70'}">📋 Plan</button>
+            <button onclick="setStatus(${q.id}, 'active')" class="py-1 rounded ${q.status === 'active' ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800/70'}">🧪 Aktiv</button>
+            <button onclick="setStatus(${q.id}, 'done')" class="py-1 rounded ${q.status === 'done' ? 'bg-emerald-500 text-slate-950 font-semibold' : 'text-slate-300 hover:bg-slate-800/70'}">✅ Fertig</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Zeichnet nur den unteren Inhaltsbereich neu (damit das Suchfeld in der Toolbar nie den Fokus verliert!)
+    function renderBoardOnly() {
+      const container = document.getElementById('board-container');
+
+      // Quests nach Kategorie UND globaler Suche filtern
+      const filteredQuests = quests.filter(q => {
+        const catOk = currentCategoryFilter === 'all' || q.category === currentCategoryFilter;
+        return catOk && matchesQuestSearch(q);
+      });
+
+      if (currentView === 'kanban') {
+        const columns = [
+          { key: 'idea', title: '💡 Ideen-Speicher', subtitle: 'Hierhin ziehen für Ideen', color: 'border-slate-800' },
+          { key: 'planned', title: '📋 Geplant', subtitle: '15% Start-XP', color: 'border-sky-500/30' },
+          { key: 'active', title: '🧪 In Arbeit', subtitle: '40% + Schritte-XP', color: 'border-amber-500/40' },
+          { key: 'done', title: '✅ Gelernt & Fertig', subtitle: '100% Volle XP', color: 'border-emerald-500/40' }
+        ];
+
+        container.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+            ${columns.map(col => {
+              const colQuests = filteredQuests.filter(q => q.status === col.key);
+              return `
+                <div class="kanban-col p-3.5 rounded-2xl bg-slate-900/50 border-2 ${col.color} min-h-[460px] transition-colors"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ondrop="handleDrop(event, '${col.key}')">
+                  <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                    <div>
+                      <h2 class="text-xs font-bold text-white">${col.title}</h2>
+                      <span class="text-[10px] text-slate-400">${col.subtitle}</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">${colQuests.length}</span>
+                  </div>
+                  <div class="space-y-3">
+                    ${colQuests.length ? colQuests.map(renderQuestCard).join('') : `<div class="text-center py-12 text-xs text-slate-600 border border-dashed border-slate-800 rounded-xl">Keine Treffer / Karte hierher ziehen</div>`}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (currentView === 'grid') {
+        container.innerHTML = filteredQuests.length ? `
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${filteredQuests.map(renderQuestCard).join('')}
+          </div>
+        ` : `<div class="p-12 text-center rounded-2xl bg-slate-900/50 border border-slate-800 text-sm text-slate-400">Keine Quests für diesen Suchbegriff gefunden.</div>`;
+      } else if (currentView === 'wiki') {
+        // EIGENSTÄNDIGE KNOW-HOW DATENBANK (Mit Sortierung & Kategorien)
+        let filteredNotes = notes.filter(n => {
+          const catOk = currentCategoryFilter === 'all' || n.category === currentCategoryFilter;
+          return catOk && matchesNoteSearch(n);
+        });
+
+        if (wikiSortBy === 'category') {
+          filteredNotes.sort((a, b) => a.category.localeCompare(b.category) || b.id - a.id);
+        } else if (wikiSortBy === 'title') {
+          filteredNotes.sort((a, b) => a.title.localeCompare(b.title));
+        } else {
+          filteredNotes.sort((a, b) => b.id - a.id);
+        }
+
+        container.innerHTML = `
+          <div class="space-y-4">
+            <!-- Wiki Steuerleiste: Sortierung & Schnell-Erfassung -->
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 class="text-base font-bold text-white">📚 Deine Know-how-Datenbank (${filteredNotes.length} Einträge)</h2>
+                <p class="text-xs text-slate-400">Erfasse jederzeit freie Notizen, Prompts, Befehle und Rezepte und sortiere sie nach Kategorien.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs text-slate-400">Sortieren nach:</span>
+                <button onclick="setWikiSort('category')" class="px-3 py-1.5 rounded-lg text-xs ${wikiSortBy === 'category' ? 'bg-sky-500 text-slate-950 font-semibold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">🗂️ Kategorie</button>
+                <button onclick="setWikiSort('newest')" class="px-3 py-1.5 rounded-lg text-xs ${wikiSortBy === 'newest' ? 'bg-sky-500 text-slate-950 font-semibold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">🕒 Neueste zuerst</button>
+                <button onclick="setWikiSort('title')" class="px-3 py-1.5 rounded-lg text-xs ${wikiSortBy === 'title' ? 'bg-sky-500 text-slate-950 font-semibold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">🔤 A–Z</button>
+                <button onclick="openNoteModal()" class="ml-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950">+ Neue Notiz erfassen</button>
+              </div>
+            </div>
+
+            <!-- Notizen-Grid -->
+            ${filteredNotes.length ? `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${filteredNotes.map(n => {
+                  const theme = getCategoryTheme(n.category);
+                  const tagsHtml = (n.tags || []).map(t => `<span class="px-2 py-0.5 rounded bg-slate-950/80 border border-slate-800 text-[10px] text-sky-300 font-mono">#${t}</span>`).join('');
+                  return `
+                    <div class="card-hover p-5 rounded-xl ${theme.bg} border ${theme.border} flex flex-col justify-between gap-3">
+                      <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                          <span class="px-2.5 py-0.5 rounded-md text-xs font-medium border ${theme.badge}">${n.category}</span>
+                          <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono text-emerald-400">+25 XP</span>
+                            <button onclick="openNoteModal(${n.id})" class="text-xs text-sky-400 hover:underline font-medium">✏️ Bearbeiten</button>
+                            <button onclick="deleteNote(${n.id})" title="Notiz löschen" class="text-xs text-slate-400 hover:text-rose-400">🗑️</button>
+                          </div>
+                        </div>
+                        <h3 class="text-sm font-bold text-white mb-2">${n.title}</h3>
+                        <pre class="p-3 rounded-lg bg-slate-950/90 border border-slate-800 text-xs text-slate-200 font-mono whitespace-pre-wrap leading-relaxed mb-3">${n.content}</pre>
+                      </div>
+                      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/70">
+                        <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+                        <span class="text-[10px] text-slate-400 font-mono">${n.createdAt || ''}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : `
+              <div class="p-12 text-center rounded-2xl bg-slate-900/50 border border-slate-800 space-y-3">
+                <div class="text-sm text-slate-300">Keine Know-how-Notizen für diese Suche oder Kategorie gefunden.</div>
+                <button onclick="openNoteModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950">+ Jetzt erste Notiz hier anlegen</button>
+              </div>
+            `}
+          </div>
+        `;
+      }
+    }
+
+    function render() {
+      // 1. Pulldown-Menüs für Bereiche aktualisieren
+      const catSelect = document.getElementById('inp-category-select');
+      catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      const filterSelect = document.getElementById('category-filter');
+      filterSelect.innerHTML = `<option value="all">Alle Bereiche (${categories.length})</option>` +
+        categories.map(c => `<option value="${c}" ${currentCategoryFilter === c ? 'selected' : ''}>${c}</option>`).join('');
+
+      document.getElementById('category-tags-list').innerHTML = categories.map(c => {
+        const t = getCategoryTheme(c);
+        return `<span class="px-2.5 py-1 rounded-full text-xs border ${t.badge}">${c}</span>`;
+      }).join('');
+
+      document.getElementById('wiki-count-badge').textContent = notes.length;
+
+      // 2. Gesamt-XP & Level berechnen (Quests + 25 XP pro Know-how Notiz)
+      let totalEarnedXp = notes.length * 25;
+      let totalPossibleXp = notes.length * 25;
+
+      quests.forEach(q => {
+        const m = calculateQuestMetrics(q);
+        totalEarnedXp += m.earnedXp;
+        totalPossibleXp += q.xp;
+      });
+
+      const xpPerLevel = 250;
+      const level = Math.floor(totalEarnedXp / xpPerLevel) + 1;
+      const xpInCurrentLevel = totalEarnedXp % xpPerLevel;
+      const levelPct = Math.max(4, Math.round((xpInCurrentLevel / xpPerLevel) * 100));
+      const titles = [
+        "Neugieriger Entdecker",
+        "Vibe-Coding Lehrling",
+        "Terminal & Script-Tüftler",
+        "Smart-Home & Audio Bastler",
+        "AI Tool-Architekt",
+        "Creative Tech-Meister",
+        "Digitaler Erfinder"
+      ];
+
+      document.getElementById('level-badge').textContent = `Level ${level}: ${titles[Math.min(level - 1, titles.length - 1)]}`;
+      document.getElementById('xp-text').textContent = `${totalEarnedXp} / ${totalPossibleXp} XP`;
+      document.getElementById('xp-bar').style.width = `${levelPct}%`;
+      document.getElementById('next-level-hint').textContent = `Noch ${xpPerLevel - xpInCurrentLevel} XP bis Level ${level + 1}`;
+
+      // 3. View-Buttons hervorheben
+      ['kanban', 'grid', 'wiki'].forEach(v => {
+        const btn = document.getElementById(`btn-view-${v}`);
+        if (btn) {
+          btn.className = currentView === v
+            ? "px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 text-slate-950 transition"
+            : "px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+        }
+      });
+
+      // 4. Board zeichnen
+      renderBoardOnly();
+    }
+
+    render();
+  </script>
+</body>
+</html>
