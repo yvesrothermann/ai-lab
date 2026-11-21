@@ -1,0 +1,36 @@
+Du erweiterst unser Single-File Dashboard `index.html` (Tailwind CSS im Dark-Mode `bg-slate-900`/`bg-slate-950`, Vanilla JavaScript).
+
+Hier sind die relevanten Stellen unserer bestehenden `index.html`:
+
+1. **View-Switcher in der Toolbar:**
+```html
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button onclick="setView('kanban')" id="btn-view-kanban" ...>📋 Kanban-Board</button>
+        <button onclick="setView('grid')" id="btn-view-grid" ...>🗂️ Karten-Grid</button>
+        <button onclick="setView('wiki')" id="btn-view-wiki" ...>📚 Know-how Datenbank <span id="wiki-count-badge" ...>0</span></button>
+      </div>
+```
+
+2. **State & Speicherung (`save()`, `exportBackupJson()`, `importBackupJson()`, `render()`):**
+- `currentView` kann bisher `'kanban'`, `'grid'` oder `'wiki'` sein.
+- `globalSearchQuery` enthält den aktuellen Suchbegriff aus der Toolbar.
+- In `render()` werden `totalEarnedXp` und `totalPossibleXp` berechnet und die aktiven View-Buttons (`['kanban', 'grid', 'wiki']`) hervorgehoben.
+
+### Deine Aufgabe als lokale KI-Entwicklerin (Qwen 3.8 27B):
+Entwickle den kompletten Code für einen **4. Reiter (View): `✅ Alltags-To-Dos` (`currentView === 'todos'`)** für schnelle, alltägliche Aufgaben!
+
+Bitte liefere mir präzise:
+1. **HTML-Button für die Toolbar (`id="btn-view-todos"`):** Mit kleinem Zähler-Badge `id="todo-count-badge"` für die Anzahl der *offenen* To-Dos.
+2. **JavaScript-Daten & Hilfsfunktionen:**
+   - `defaultTodos` (3 sympathische Start-To-Dos mit `id`, `text`, `done`, `priority` (`'normal'` | `'high'`), `dueDate` (`YYYY-MM-DD` oder `''`), `createdAt`).
+   - Laden aus `localStorage.getItem('ailab_todos_v05')`.
+   - Funktionen: `addTodo()`, `toggleTodo(id)`, `editTodo(id)` (Klick auf den Aufgabentext öffnet `prompt()` zum schnellen Ändern), `deleteTodo(id)`, `clearCompletedTodos()`.
+3. **HTML-Template für `else if (currentView === 'todos')` in `renderBoardOnly()`:**
+   - Oben eine schicke Schnell-Eingabeleiste (Input `id="todo-inp-text"` mit `onkeydown="if(event.key==='Enter') addTodo()"`, Prioritäts-Select `id="todo-inp-prio"` mit `Normal` und `🔥 Wichtig`, Datumsfeld `id="todo-inp-due"`, und `+ Hinzufügen`-Button).
+   - Berücksichtigung von `globalSearchQuery` (filtert nach `t.text`).
+   - Darstellung in 2 Spalten (`grid-cols-1 lg:grid-cols-2 gap-4`):
+     - Links: **⏳ Offene Alltags-Aufgaben** (sortiert: `high` Priorität zuerst; Anzeige von `🔥`-Badge, Fälligkeitsdatum und `+10 XP`-Hinweis; Klick auf den Text ruft `editTodo(id)` auf).
+     - Rechts: **✅ Erledigte Aufgaben** (durchgestrichen, `+10 XP` in Grün, plus Button `🧹 Erledigte aufräumen`).
+4. **Ergänzungen für `save()`, `resetData()`, `exportBackupJson()`, `importBackupJson()` und `render()` (+10 XP pro erledigtem To-Do).**
+
+Halte den Code-Stil exakt passend zu unserem bestehenden Tailwind-Dark-Design (`bg-slate-900`, `border-slate-800`, `text-sky-400`, `text-emerald-400`).

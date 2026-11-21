@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1b1410">
+  <title>Knuschelmäusli – Wo ist Flöckli?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <!-- Spielwelt (wird per JS passend zum Hintergrundbild skaliert) -->
+    <div id="layer">
+      <img id="bg" alt="" draggable="false">
+      <div id="night"></div>
+      <div id="hotspots"></div>
+      <div id="hero"><img src="assets/knuschelmaeusli.png" alt="" draggable="false"></div>
+      <div id="fx"></div>
+    </div>
+
+    <!-- Bedienelemente -->
+    <div id="sub"><span class="name"></span><span class="text"></span></div>
+    <button id="bellBtn" class="btn" title="Glöckchen-Tipp"></button>
+    <div id="topBtns">
+      <button id="soundBtn" class="btn small" title="Ton an/aus">🔊</button>
+      <button id="fsBtn" class="btn small" title="Vollbild">⛶</button>
+    </div>
+    <svg id="meter" viewBox="0 0 100 92">
+      <defs><clipPath id="fillClip"><rect id="fillRect" x="0" y="92" width="100" height="92"/></clipPath></defs>
+      <path class="heartBg" d="M50 88 C20 66 2 48 2 28 C2 12 14 2 28 2 C38 2 46 8 50 16 C54 8 62 2 72 2 C86 2 98 12 98 28 C98 48 80 66 50 88Z"/>
+      <path class="heartFill" clip-path="url(#fillClip)" d="M50 88 C20 66 2 48 2 28 C2 12 14 2 28 2 C38 2 46 8 50 16 C54 8 62 2 72 2 C86 2 98 12 98 28 C98 48 80 66 50 88Z"/>
+    </svg>
+
+    <!-- Overlays -->
+    <div id="ovStart" class="ov on">
+      <div class="title">Knuschelmäusli</div>
+      <div class="subtitle">Wo ist Flöckli?</div>
+      <button id="playBtn" class="bigBtn">▶</button>
+      <div class="hint">Ton einschalten · am besten im Querformat</div>
+    </div>
+
+    <div id="ovSack" class="ov">
+      <div class="ovTitle">Rucksack-Check!</div>
+      <div id="sack" class="med big"></div>
+    </div>
+
+    <div id="ovReward" class="ov">
+      <div class="rewardImg"></div>
+      <div id="sticker">💛 Knuschel-Herzli gesammelt!</div>
+      <button id="moonBtn" class="bigBtn moon">🌙</button>
+    </div>
+
+    <div id="ovEnd" class="ov">
+      <div class="title night">Gute Nacht</div>
+      <button id="againBtn" class="btn small again">↻ Nochmal</button>
+    </div>
+
+    <div id="fade"></div>
+    <div id="rotate">📱↻<br>Bitte das Gerät quer drehen</div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

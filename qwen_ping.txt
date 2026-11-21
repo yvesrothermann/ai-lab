@@ -1,0 +1,7 @@
+Der Nutzer möchte eine kurze Begrüßung von „LM Studio“ in einem Satz. Der Befehl /no_think deutet darauf hin, dass ich direkt antworten soll, ohne lange zu überlegen oder zusätzliche Erklärungen zu geben. Ich sollte mich als LM Studio vorstellen und kurz Hallo sagen.
+
+Mögliche Antworten:
+- „Hallo! Ich bin LM Studio, dein lokaler KI-Assistent.“
+- „Hi, ich bin LM Studio – schön, dass du da bist!“
+
+Ich wähle eine freundliche, direkte Begrüßung in einem Satz.Hallo! Ich bin LM Studio, dein lokaler KI-Assistent.

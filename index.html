@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI & Tech Skill-Tree Lab v0.5</title>
+  <title>AI & Tech Skill-Tree Lab v0.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -35,7 +35,7 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 text-xs font-semibold mb-2 border border-sky-500/20">
-          🚀 AI Explorer Lab • Version 0.5 (Quest-Editor, Sichere Pop-ups & JSON-Backup)
+          🚀 AI Explorer Lab • Version 0.6 (Inkl. Alltags-To-Do-Liste powered by Qwen 3.8 27B)
         </div>
         <h1 class="text-2xl md:text-3xl font-bold text-white">Mein KI & Tech Skill-Tree</h1>
         <p class="text-slate-400 text-sm mt-1">Projekte im Kanban steuern, XP sammeln und jederzeit unabhängige Notizen in der Know-how-Datenbank nachschlagen.</p>
@@ -186,6 +186,9 @@
         </button>
         <button onclick="setView('wiki')" id="btn-view-wiki" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
           📚 Know-how Datenbank <span id="wiki-count-badge" class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-950/60 text-[10px]">0</span>
+        </button>
+        <button onclick="setView('todos')" id="btn-view-todos" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+          ✅ Alltags-To-Dos <span id="todo-count-badge" class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-950/60 text-[10px]">0</span>
         </button>
       </div>
 
@@ -488,6 +491,36 @@
     let quests = JSON.parse(localStorage.getItem('ailab_quests_v04')) || defaultQuests;
     let notes = JSON.parse(localStorage.getItem('ailab_notes_v04')) || defaultNotes;
 
+    // 5. Alltags-To-Dos (Entworfen von Qwen 3.8 27B)
+    const defaultTodos = [
+      {
+        id: 201,
+        text: "☕ Kaffee nachfüllen & Schreibtisch kurz aufräumen",
+        done: false,
+        priority: "normal",
+        dueDate: "",
+        createdAt: "2026-11-21"
+      },
+      {
+        id: 202,
+        text: "📬 Wichtige E-Mails & Nachrichten beantworten",
+        done: false,
+        priority: "high",
+        dueDate: "2026-11-21",
+        createdAt: "2026-11-21"
+      },
+      {
+        id: 203,
+        text: "🤖 Lokales Qwen-LLM in LM Studio mit Antigravity verbinden",
+        done: true,
+        priority: "high",
+        dueDate: "2026-11-21",
+        createdAt: "2026-11-21"
+      }
+    ];
+
+    let todos = JSON.parse(localStorage.getItem('ailab_todos_v05')) || defaultTodos;
+
     function calculateQuestMetrics(q) {
       if (q.status === 'done') {
         return { progressPct: 100, earnedXp: q.xp };
@@ -507,6 +540,7 @@
       localStorage.setItem('ailab_quests_v04', JSON.stringify(quests));
       localStorage.setItem('ailab_categories_v04', JSON.stringify(categories));
       localStorage.setItem('ailab_notes_v04', JSON.stringify(notes));
+      localStorage.setItem('ailab_todos_v05', JSON.stringify(todos));
       localStorage.setItem('ailab_view_v04', currentView);
       render();
     }
@@ -848,16 +882,84 @@
       save();
     }
 
+    // Alltags-To-Do Funktionen (Entworfen von Qwen 3.8 27B)
+    function addTodo() {
+      const textEl = document.getElementById('todo-inp-text');
+      const prioEl = document.getElementById('todo-inp-prio');
+      const dueEl = document.getElementById('todo-inp-due');
+      if (!textEl) return;
+      const text = textEl.value.trim();
+      if (!text) {
+        textEl.focus();
+        return;
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      todos.unshift({
+        id: Date.now(),
+        text,
+        done: false,
+        priority: prioEl && prioEl.value === 'high' ? 'high' : 'normal',
+        dueDate: dueEl ? dueEl.value : '',
+        createdAt: today
+      });
+      save();
+      setTimeout(() => {
+        const newInp = document.getElementById('todo-inp-text');
+        if (newInp) newInp.focus();
+      }, 30);
+    }
+
+    function toggleTodo(id) {
+      todos = todos.map(t => t.id === id ? { ...t, done: !t.done } : t);
+      save();
+    }
+
+    function editTodo(id) {
+      const t = todos.find(x => x.id === id);
+      if (!t) return;
+      const next = prompt("Alltags-Aufgabe bearbeiten:", t.text);
+      if (next === null) return;
+      const trimmed = next.trim();
+      if (!trimmed) {
+        alert("Der Aufgabentext darf nicht leer sein.");
+        return;
+      }
+      todos = todos.map(x => x.id === id ? { ...x, text: trimmed } : x);
+      save();
+    }
+
+    function toggleTodoPriority(id) {
+      todos = todos.map(t => t.id === id ? { ...t, priority: t.priority === 'high' ? 'normal' : 'high' } : t);
+      save();
+    }
+
+    function deleteTodo(id) {
+      const t = todos.find(x => x.id === id);
+      if (!t) return;
+      if (!confirm(`Möchtest du das To-Do "${t.text}" wirklich löschen?`)) return;
+      todos = todos.filter(x => x.id !== id);
+      save();
+    }
+
+    function clearCompletedTodos() {
+      const doneCount = todos.filter(t => t.done).length;
+      if (doneCount === 0) return;
+      if (!confirm(`Möchtest du alle ${doneCount} erledigten Alltags-Aufgaben aufräumen?`)) return;
+      todos = todos.filter(t => !t.done);
+      save();
+    }
+
     // JSON Backup Export & Import (mit modernem File System Access Dialog für direkten Speicherort Z:\ai-lab)
     let savedBackupFileHandle = null;
 
     async function exportBackupJson() {
       const backupPayload = {
-        version: "0.5",
+        version: "0.6",
         exportedAt: new Date().toISOString(),
         categories,
         quests,
-        notes
+        notes,
+        todos
       };
       const jsonStr = JSON.stringify(backupPayload, null, 2);
 
@@ -912,8 +1014,11 @@
           }
           quests = data.quests;
           notes = data.notes;
+          if (Array.isArray(data.todos)) {
+            todos = data.todos;
+          }
           save();
-          alert(`✅ Backup erfolgreich geladen! (${quests.length} Quests, ${notes.length} Know-how-Notizen)`);
+          alert(`✅ Backup erfolgreich geladen! (${quests.length} Quests, ${notes.length} Notizen, ${todos.length} To-Dos)`);
         } catch (err) {
           alert("Fehler beim Lesen der JSON-Datei: " + err.message);
         } finally {
@@ -973,13 +1078,15 @@
     }
 
     function resetData() {
-      if (!confirm("Möchtest du das Board wirklich auf die Start-Quests und Start-Notizen von v0.4 zurücksetzen?")) return;
+      if (!confirm("Möchtest du das Board wirklich auf die Start-Quests, Notizen und To-Dos zurücksetzen?")) return;
       localStorage.removeItem('ailab_quests_v04');
       localStorage.removeItem('ailab_categories_v04');
       localStorage.removeItem('ailab_notes_v04');
+      localStorage.removeItem('ailab_todos_v05');
       quests = JSON.parse(JSON.stringify(defaultQuests));
       categories = [...defaultCategories];
       notes = JSON.parse(JSON.stringify(defaultNotes));
+      todos = JSON.parse(JSON.stringify(defaultTodos));
       render();
     }
 
@@ -1196,6 +1303,109 @@
             `}
           </div>
         `;
+      } else if (currentView === 'todos') {
+        // 4. REITER: ALLTAGS-TO-DO-LISTE (Entworfen mit Qwen 3.8 27B)
+        const term = (globalSearchQuery || '').trim().toLowerCase();
+        const filteredTodos = todos.filter(t => !term || t.text.toLowerCase().includes(term));
+
+        const openTodos = filteredTodos
+          .filter(t => !t.done)
+          .sort((a, b) => (b.priority === 'high' ? 1 : 0) - (a.priority === 'high' ? 1 : 0) || (a.dueDate || '9999').localeCompare(b.dueDate || '9999'));
+
+        const doneTodos = filteredTodos.filter(t => t.done);
+
+        container.innerHTML = `
+          <div class="space-y-5">
+            <!-- Schnell-Eingabeleiste für Alltags-Aufgaben -->
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg">
+              <div class="flex items-center justify-between mb-2.5">
+                <div>
+                  <h2 class="text-base font-bold text-white">✅ Schnelle Alltags-To-Do-Liste</h2>
+                  <p class="text-xs text-slate-400">Alltägliche Erledigungen außerhalb der großen KI-Quests abhaken (+10 XP je erledigtes To-Do).</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-[11px] bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">🤖 Co-Designed by Qwen 3.8 27B</span>
+              </div>
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <input id="todo-inp-text"
+                       type="text"
+                       onkeydown="if(event.key==='Enter') addTodo()"
+                       placeholder="Neue Alltags-Aufgabe eintippen und Enter drücken..."
+                       class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                <select id="todo-inp-prio" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                  <option value="normal">📌 Normal</option>
+                  <option value="high">🔥 Wichtig</option>
+                </select>
+                <input id="todo-inp-due"
+                       type="date"
+                       title="Optionales Fälligkeitsdatum"
+                       class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-sky-400">
+                <button onclick="addTodo()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 whitespace-nowrap transition">
+                  + Hinzufügen
+                </button>
+              </div>
+            </div>
+
+            <!-- 2-Spalten-Ansicht: Offen vs. Erledigt -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+              <!-- Links: Offene Aufgaben -->
+              <div class="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2.5">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <h3 class="text-xs font-bold text-white uppercase tracking-wider">⏳ Offene Aufgaben (${openTodos.length})</h3>
+                  <span class="text-[11px] text-slate-400">Klick auf Text = Bearbeiten</span>
+                </div>
+                ${openTodos.length ? openTodos.map(t => `
+                  <div class="card-hover p-3 rounded-xl bg-slate-950/90 border ${t.priority === 'high' ? 'border-rose-500/40 bg-rose-950/20' : 'border-slate-800'} flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                      <input type="checkbox" onchange="toggleTodo(${t.id})" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0 cursor-pointer">
+                      <div class="flex-1 min-w-0">
+                        <div onclick="editTodo(${t.id})" title="Klicken zum Bearbeiten" class="text-xs font-medium text-slate-100 hover:text-sky-400 cursor-pointer break-words">
+                          ${t.text}
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 mt-1">
+                          ${t.priority === 'high' ? `<span onclick="toggleTodoPriority(${t.id})" title="Priorität umschalten" class="cursor-pointer px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">🔥 Wichtig</span>` : `<span onclick="toggleTodoPriority(${t.id})" title="Auf Wichtig schalten" class="cursor-pointer text-[10px] text-slate-500 hover:text-slate-300">📌 Normal</span>`}
+                          ${t.dueDate ? `<span class="text-[10px] font-mono text-amber-300/90">📅 ${t.dueDate}</span>` : ''}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-mono text-slate-500">+10 XP</span>
+                      <button onclick="editTodo(${t.id})" title="Bearbeiten" class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-sky-400 text-xs">✏️</button>
+                      <button onclick="deleteTodo(${t.id})" title="Löschen" class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-rose-400 text-xs">🗑️</button>
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div class="py-10 text-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                    🎉 Keine offenen Alltags-To-Dos!
+                  </div>
+                `}
+              </div>
+
+              <!-- Rechts: Erledigte Aufgaben -->
+              <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-2.5">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">✅ Erledigt (${doneTodos.length})</h3>
+                  ${doneTodos.length ? `<button onclick="clearCompletedTodos()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 transition">🧹 Erledigte aufräumen</button>` : ''}
+                </div>
+                ${doneTodos.length ? doneTodos.map(t => `
+                  <div class="p-3 rounded-xl bg-slate-950/50 border border-slate-800/60 flex items-center justify-between gap-3 opacity-75">
+                    <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                      <input type="checkbox" checked onchange="toggleTodo(${t.id})" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0 cursor-pointer">
+                      <span onclick="editTodo(${t.id})" class="text-xs line-through text-slate-400 cursor-pointer break-words">${t.text}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400">+10 XP</span>
+                      <button onclick="deleteTodo(${t.id})" title="Löschen" class="p-1 rounded hover:bg-slate-800 text-slate-500 hover:text-rose-400 text-xs">🗑️</button>
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div class="py-10 text-center text-xs text-slate-600 border border-dashed border-slate-800/60 rounded-xl">
+                    Noch keine erledigten Aufgaben in dieser Liste.
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
       }
     }
 
@@ -1214,10 +1424,14 @@
       }).join('');
 
       document.getElementById('wiki-count-badge').textContent = notes.length;
+      const openTodosCount = todos.filter(t => !t.done).length;
+      const doneTodosCount = todos.filter(t => t.done).length;
+      const todoBadge = document.getElementById('todo-count-badge');
+      if (todoBadge) todoBadge.textContent = openTodosCount;
 
-      // 2. Gesamt-XP & Level berechnen (Quests + 25 XP pro Know-how Notiz)
-      let totalEarnedXp = notes.length * 25;
-      let totalPossibleXp = notes.length * 25;
+      // 2. Gesamt-XP & Level berechnen (Quests + 25 XP pro Know-how Notiz + 10 XP pro erledigtem Alltags-To-Do)
+      let totalEarnedXp = (notes.length * 25) + (doneTodosCount * 10);
+      let totalPossibleXp = (notes.length * 25) + (todos.length * 10);
 
       quests.forEach(q => {
         const m = calculateQuestMetrics(q);
@@ -1245,7 +1459,7 @@
       document.getElementById('next-level-hint').textContent = `Noch ${xpPerLevel - xpInCurrentLevel} XP bis Level ${level + 1}`;
 
       // 3. View-Buttons hervorheben
-      ['kanban', 'grid', 'wiki'].forEach(v => {
+      ['kanban', 'grid', 'wiki', 'todos'].forEach(v => {
         const btn = document.getElementById(`btn-view-${v}`);
         if (btn) {
           btn.className = currentView === v
