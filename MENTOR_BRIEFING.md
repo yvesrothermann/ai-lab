@@ -40,3 +40,10 @@ Wir haben als erstes Experiment ein eigenes **Single-File Skill-Tree & Kanban Da
 - 🔜 **Nächste spannende Quests zur Auswahl:**
   - **Quest #2 (`🐭 Kreativ & Audio`):** Pilotfolge *„Die Abenteuer des Knuschelmäusli“* (1-Minuten-Story, TTS-Stimme testen, MP3-Workflow).
   - **Quest #4 (`🐍 Python & Scripting`):** Erstes 20-Zeilen-Python-Helfer-Script schreiben und verstehen.
+
+---
+
+## ⏰ Wichtige Termine & Erinnerungen für den Mentor
+- **📅 Stichtag 05.12.2026 (2-Wochen-Check GitHub Public vs. Private):**
+  - Aktuell testen wir `ai-lab` als **Public Repository** (damit GitHub Pages zum Testen von unterwegs genutzt werden kann).
+  - **Pflicht-Check für Antigravity:** Spätestens ab dem **05.12.2026** (oder sobald wir tiefere/privatere Themen wie Smart Home IPs, API-Keys, Homepage-Zugänge oder private Knuschelmäusli-Skripte starten) den User aktiv daran erinnern, die Sichtbarkeit von `ai-lab` zu überprüfen (wieder auf `Private` stellen bzw. eigene `Private` Repositories für tiefere Projekte anlegen)!
